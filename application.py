@@ -1,7 +1,9 @@
 import fltk as fl
+
 from event import Event
 from button import Button 
 from tkinter import filedialog
+from sheep import *
 
 
 class Application:
@@ -31,7 +33,7 @@ class Application:
                 break
             
             for button in buttons:
-                button.update(selfevents)
+                button.update(self.events)
             fl.mise_a_jour()
         fl.ferme_fenetre()
         
@@ -39,6 +41,21 @@ class Application:
     def play(self):
         # ouvrir file dialog
         # peupler not table 'entities' avec le fichier
+        file_path = filedialog.askopenfilename()
+        plateau = list()
+        with open(file_path, 'r') as f:
+            for line, i in enumerate(f):
+                temp = []
+                for char, j in enumerate(line):
+                    if char == '_':
+                        temp.append(None)
+                    elif char == 'S':
+                        self.entities.append(Sheep(i,j))
+                        temp.append(None)
+                    else:
+                        temp.append(char)
+                plateau.append(temp)
+
 
         #while self.running:
         #   on prend les inputs
@@ -46,8 +63,6 @@ class Application:
         #   for entity in entities:
         #   entity.update()
 
-        file_path = filedialog.askopenfilename()
-        print(file_path)
         
 app = Application()
 app.run()
