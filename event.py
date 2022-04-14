@@ -1,5 +1,6 @@
 import fltk as fl
 
+
 class Event:
     """
     Classe permettant de représenter un evenement, pour permettre aux différentes classes de communiquer entre-elles

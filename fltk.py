@@ -67,7 +67,7 @@ class CustomCanvas:
 
     _default_ev = ['ClicGauche', 'ClicDroit', 'Touche']
 
-    def __init__(self, width, height, refresh_rate=100, events=None):
+    def __init__(self, width, height, title="TK", icon=None, refresh_rate=100, events=None):
         # width and height of the canvas
         self.width = width
         self.height = height
@@ -75,6 +75,9 @@ class CustomCanvas:
 
         # root Tk object
         self.root = tk.Tk()
+        self.root.title(title)
+        if icon is not None:
+            self.root.iconbitmap(icon)
 
         # canvas attached to the root object
         self.canvas = tk.Canvas(self.root, width=width,
@@ -162,7 +165,7 @@ class FenetreDejaCree(Exception):
 #############################################################################
 
 
-def cree_fenetre(largeur, hauteur, frequence=100):
+def cree_fenetre(largeur, hauteur, title="TK", icon=None, frequence=100):
     """
     Crée une fenêtre de dimensions ``largeur`` x ``hauteur`` pixels.
     :rtype:
@@ -171,7 +174,7 @@ def cree_fenetre(largeur, hauteur, frequence=100):
     if __canevas is not None:
         raise FenetreDejaCree(
             'La fenêtre a déjà été crée avec la fonction "cree_fenetre".')
-    __canevas = CustomCanvas(largeur, hauteur, frequence)
+    __canevas = CustomCanvas(largeur, hauteur, title, icon, frequence)
 
 
 def ferme_fenetre():
@@ -196,6 +199,23 @@ def mise_a_jour():
             "La fenêtre n'a pas été crée avec la fonction \"cree_fenetre\".")
     __canevas.update()
 
+
+#############################################################################
+# Dimensions de la fnêtre
+#############################################################################
+
+def get_width():
+    if __canevas is None:
+        raise FenetreNonCree(
+            "La fenêtre n'a pas été crée avec la fonction \"cree_fenetre\".")
+    return __canevas.root.winfo_width()
+
+
+def get_height():
+    if __canevas is None:
+        raise FenetreNonCree(
+            "La fenêtre n'a pas été crée avec la fonction \"cree_fenetre\".")
+    return __canevas.root.winfo_height()
 
 #############################################################################
 # Fonctions de dessin
@@ -239,11 +259,11 @@ def fleche(ax, ay, bx, by, couleur='black', epaisseur=1, tag=''):
     """
     x, y = (bx - ax, by - ay)
     n = (x**2 + y**2)**.5
-    x, y = x/n, y/n    
+    x, y = x/n, y/n
     points = [bx, by, bx-x*5-2*y, by-5*y+2*x, bx-x*5+2*y, by-5*y-2*x]
     return __canevas.canvas.create_polygon(
-        points, 
-        fill=couleur, 
+        points,
+        fill=couleur,
         outline=couleur,
         width=epaisseur,
         tag=tag)
@@ -261,8 +281,8 @@ def polygone(points, couleur='black', remplissage='', epaisseur=1, tag=''):
     :return: identificateur d'objet
     """
     return __canevas.canvas.create_polygon(
-        points, 
-        fill=remplissage, 
+        points,
+        fill=remplissage,
         outline=couleur,
         width=epaisseur,
         tag=tag)
