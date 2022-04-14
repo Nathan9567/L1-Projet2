@@ -36,17 +36,18 @@ class Button:
         """
         Fonction à appeler chaque frame verifie les clics et met appelle la fonction si necessaire
         """
+        textx, texty = fl.taille_texte(self.text)
         if self.is_hovered():
             self.button = fl.rectangle(
                 self.ax, self.ay, self.bx, self.by, couleur='grey', remplissage='red', epaisseur=1, tag='')
-            self.btn_text = fl.texte(self.ax+5, self.ay+5, self.text, couleur='black',
+            self.btn_text = fl.texte(self.ax - textx/2, self.ay - texty/2, self.text, couleur='black',
                                      ancrage='nw', police='Helvetica', taille=20, tag='')
             if event.type == 'ClicGauche':
                 self.function()
         else:
             self.button = fl.rectangle(
                 self.ax, self.ay, self.bx, self.by, couleur='grey', remplissage='grey', epaisseur=1, tag='')
-            self.btn_text = fl.texte(self.ax+5, self.ay+5, self.text, couleur='black',
+            self.btn_text = fl.texte(self.ax - textx/2, self.ay - texty/2, self.text, couleur='black',
                                      ancrage='nw', police='Helvetica', taille=20, tag='')
             self.clicked = False
 

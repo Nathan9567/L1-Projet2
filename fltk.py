@@ -1,8 +1,8 @@
 import subprocess
 import sys
+import os
 import tkinter as tk
 from collections import deque
-from os import system
 from time import time, sleep
 from tkinter.font import Font
 
@@ -101,7 +101,7 @@ class CustomCanvas:
         self.root.update()
 
         if CustomCanvas._on_osx:
-            system('''/usr/bin/osascript -e 'tell app "Finder" \
+            os.system('''/usr/bin/osascript -e 'tell app "Finder" \
                    to set frontmost of process "Python" to true' ''')
 
     def update(self):
@@ -216,6 +216,16 @@ def get_height():
         raise FenetreNonCree(
             "La fenêtre n'a pas été crée avec la fonction \"cree_fenetre\".")
     return __canevas.root.winfo_height()
+
+
+def set_fullscreen(boolean):
+    if __canevas is None:
+        raise FenetreNonCree(
+            "La fenêtre n'a pas été crée avec la fonction \"cree_fenetre\".")
+    if os.name == 'nt':
+        __canevas.root.attributes('-fullscreen', boolean)
+    else:
+        __canevas.root.attributes('-zoomed', boolean)
 
 #############################################################################
 # Fonctions de dessin
@@ -382,7 +392,7 @@ def point(x, y, couleur='black', epaisseur=1, tag=''):
 
 # Image
 
-def image(x, y, fichier, ancrage='center', tag=''):
+def image(ax, ay, bx, by, fichier, ancrage='center', tag=''):
     """
     Affiche l'image contenue dans ``fichier`` avec ``(x, y)`` comme centre. Les
     valeurs possibles du point d'ancrage sont ``'center'``, ``'nw'``, etc.
@@ -396,11 +406,12 @@ def image(x, y, fichier, ancrage='center', tag=''):
     """
     if PIL_AVAILABLE:
         img = Image.open(fichier)
+        img = img.resize((int(bx-ax), int(by-ay)), Image.ANTIALIAS)
         tkimage = ImageTk.PhotoImage(img)
     else:
         tkimage = tk.PhotoImage(file=fichier)
     img_object = __canevas.canvas.create_image(
-        x, y, anchor=ancrage, image=tkimage, tag=tag)
+        ax, by, anchor=ancrage, image=tkimage, tag=tag)
     __img[img_object] = tkimage
     return img_object
 
