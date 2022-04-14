@@ -84,7 +84,7 @@ class CustomCanvas:
                                 height=height, highlightthickness=0)
 
         # adding the canvas to the root window and giving it focus
-        self.canvas.pack()
+        self.canvas.pack(fill="both", expand=True)
         self.canvas.focus_set()
 
         # binding events

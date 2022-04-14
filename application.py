@@ -71,6 +71,8 @@ class Application:
                 break
             for entity in self.entities:
                 entity.update(self.events, plateau)
+            fl.efface_tout()
+            self.render(plateau)
             fl.mise_a_jour()
 
     def render(self, plateau):
@@ -79,7 +81,9 @@ class Application:
         w = fl.get_width()
         h = fl.get_height()
         for i in range(x):
-            pass
+            fl.ligne(0, h/x*i, w, h/x*i)
+        for i in range(y):
+            fl.ligne(w/y*i, 0, w/y*i, h)
 
 
 app = Application()
