@@ -9,31 +9,43 @@ class Sheep:
         self.y = y
         self.sprite = "./media/sheep.png"
 
-    def update(self, event: Event, map: list) -> None:
+    def update(self, event: Event, map: list, entities: list) -> None:
         """Mise à jour du mouton"""
-        allowed_cell = [None, 'G']
+        cmpt = 0
         if event.type == 'Touche':
-            while True:
-                if event.data == 'Up' and map[self.x - 1][self.y] in allowed_cell:
-                    self.x = max(self.x - 1, 0)
-                    if self.x == 0:
-                        break
-                elif event.data == 'Down' and map[min(self.x + 1, len(map) - 1)][self.y] in allowed_cell:
-                    self.x = min(self.x + 1, len(map) - 1)
-                    if self.x == len(map) - 1:
-                        break
-                elif event.data == 'Left' and map[self.x][self.y - 1] in allowed_cell:
-                    self.y = max(self.y - 1, 0)
-                    if self.y == 0:
-                        break
-                elif event.data == 'Right' and map[self.x][min(self.y + 1, len(map[0]) - 1)] in allowed_cell:
-                    self.y = min(self.y + 1, len(map[0]) - 1)
-                    if self.y == len(map[0]) - 1:
-                        break
-                else:
-                    break
-        if map[self.x][self.y] == 'G':
-            self.sprite = "./media/sheep_grass.png"
-        else:
-            self.sprite = "./media/sheep.png"
+            if event.data == 'Up':
+                for x in reversed(range(0, self.x)):
+                    if map[x][self.y] == 'S':
+                        cmpt += 1
+                    if map[x][self.y] == 'B':
+                        self.x = (x + cmpt) + 1
+                        return None
+                self.x = cmpt
+            elif event.data == 'Down':
+                for x in range(self.x, len(map)):
+                    if map[x][self.y] == 'S':
+                        cmpt += 1
+                    if map[x][self.y] == 'B':
+                        self.x = (x - cmpt)
+                        return None
+                self.x = (len(map) - cmpt)
+            elif event.data == 'Left':
+                for y in reversed(range(0, self.y)):
+                    if map[self.x][y] == 'S':
+                        cmpt += 1
+                    if map[self.x][y] == 'B':
+                        self.y = (y + cmpt) + 1
+                        return None
+                self.y = cmpt
+            elif event.data == 'Right':
+                for y in range(self.y, len(map[0])):
+                    if map[self.x][y] == 'S':
+                        cmpt += 1
+                    if map[self.x][y] == 'B':
+                        self.y = (y - cmpt)
+                        return None
+                self.y = (len(map[0]) - cmpt)
+            else:
+                return None
+
         # print(self.x, self.y)
