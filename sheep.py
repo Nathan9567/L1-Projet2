@@ -9,7 +9,12 @@ class Sheep:
         self.y = y
         self.sprite = "./media/sheep.png"
 
-    def update(self, event: Event, map: list, entities: list) -> None:
+    def __eq__(self, other: object) -> bool:
+        if self.x == other.x and self.y == other.y:
+            return True
+        return False
+
+    def update(self, event: Event, map: list) -> None:
         """Mise à jour du mouton"""
         cmpt = 0
         if event.type == 'Touche':

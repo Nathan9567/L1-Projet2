@@ -17,6 +17,7 @@ class Application:
         self.width = 800
         self.fullscreen = False
         self.sprites = {'B': './media/bush.png', 'G': './media/grass.png'}
+        self.states = list()
 
     def run(self):
         self.running = True
@@ -32,9 +33,12 @@ class Application:
             plateau, nb_of_grass = self.load_map()
             self.play(plateau, nb_of_grass)
 
-        buttons.append(Button(200, 250, 600, 350, "Play", play))
+        # buttons.append(Button(200, 250, 600, 350, "Play", play))
+        buttons.append(Button(25, 25, 50, 30, "Play", play))
+        # buttons.append(Button(200, 250, 600, 350, "Random Map", play))
 
         while self.running:
+            fl.efface_tout()
             self.events.get_ev()
             if self.events.type == "Quitte":
                 self.running = False
@@ -50,51 +54,88 @@ class Application:
 
     def load_map(self):
         self.entities = list()
-        file_path = filedialog.askopenfilename()
+        file_path = filedialog.askopenfilename(
+            filetypes=[("Map File", "*.txt"), ("Save File", "*.sav"),
+                       ("All", "*")], defaultextension='.txt')
         if file_path == '':
             return [], 0
         plateau = list()
         number_of_grass = 0
-        with open(file_path, 'r') as f:
-            for i, line in enumerate(f):
-                temp = []
-                for j, char in enumerate(line):
-                    if char == '_':
-                        temp.append(None)
-                    elif char == 'S':
-                        self.entities.append(Sheep(i, j))
-                        temp.append(None)
-                    elif char == 'G':
-                        number_of_grass += 1
-                        temp.append(char)
-                    elif char == '\n':
+        extension = file_path.split('.')[-1]
+        if extension == 'txt':
+            with open(file_path, 'r') as f:
+                for i, line in enumerate(f):
+                    temp = []
+                    for j, char in enumerate(line):
+                        if char == '_':
+                            temp.append(None)
+                        elif char == 'S':
+                            self.entities.append(Sheep(i, j))
+                            temp.append(None)
+                        elif char == 'G':
+                            number_of_grass += 1
+                            temp.append(char)
+                        elif char == '\n':
+                            continue
+                        else:
+                            temp.append(char)
+                    plateau.append(temp)
+        elif extension == 'sav':
+            with open(file_path, 'r') as f:
+                for line in f:
+                    if line[0] == '&':
+                        coord = line[1:-1].split(',')
+                        self.entities.append(
+                            Sheep(int(coord[0]), int(coord[1])))
                         continue
-                    else:
-                        temp.append(char)
-                plateau.append(temp)
+                    temp = []
+                    for char in line:
+                        if char == '_':
+                            temp.append(None)
+                        elif char == 'G':
+                            number_of_grass += 1
+                            temp.append(char)
+                        elif char == '\n':
+                            continue
+                        else:
+                            temp.append(char)
+                    plateau.append(temp)
+        else:
+            return [], 0
         return plateau, number_of_grass
 
     def play(self, plateau, nb_of_grass):
         if plateau == []:
             return None
         playing = True
-        print(self.solve(plateau, nb_of_grass))
+        self.states = [copy.deepcopy(self.entities)]
+        # print(self.solve(plateau, nb_of_grass))
+        print(self.solve_min(plateau, nb_of_grass))
         while playing:
             total_of_grass_occupied = 0
             self.events.get_ev()
             if self.events.type == "Quitte":
                 self.running = False
                 return None
-            elif self.events.type == "Touche" and self.events.data == "F11":
-                self.fullscreen = not self.fullscreen
-                fl.set_fullscreen(self.fullscreen)
+            elif self.events.type == "Touche":
+                if self.events.data == "F11":
+                    self.fullscreen = not self.fullscreen
+                    fl.set_fullscreen(self.fullscreen)
+                elif self.events.data == "F2":
+                    self.save(plateau)
+                elif self.events.data == "F3":
+                    if len(self.states) > 1:
+                        self.states.pop()
+                        self.entities = copy.deepcopy(self.states[-1])
             temp_map = copy.deepcopy(plateau)
             for entity in self.entities:
                 temp_map[entity.x][entity.y] = 'S'
             for entity in self.entities:
-                entity.update(self.events, temp_map, self.entities)
+                entity.update(self.events, temp_map)
                 if entity.sprite == "./media/sheep_grass.png":
                     total_of_grass_occupied += 1
+            if self.states[-1] != self.entities and self.events.data != "F3":
+                self.states.append(copy.deepcopy(self.entities))
             self.render(plateau)
             if self.isWin(plateau, self.entities, nb_of_grass):
                 playing = False
@@ -111,29 +152,59 @@ class Application:
 
         states = []
 
-        def __solve(entities, solution):
-            if solution != []:
+        def __solve(entities):
+            state = copy.deepcopy(plateau)
+            for entity in entities:
+                state[entity.x][entity.y] = 'S'
+            if self.isWin(plateau, entities, nb_of_grass):
+                return []
+            if state in states:
+                return None
+            states.append(state)
+            for direction in ["Left", "Right", "Up", "Down"]:
+                temp_ev = Event("Touche", direction)
+                entitiesB = copy.deepcopy(entities)
+                for entity in entitiesB:
+                    entity.update(temp_ev, state)
+                result = __solve(entitiesB)
+                if result is not None:
+                    return [direction] + result
+            return None
 
-                temp_ev = Event("Touche", solution[-1])
-                temp_map = copy.deepcopy(plateau)
-                entities = copy.deepcopy(entities)
-                state = []
-                for entity in entities:
-                    temp_map[entity.x][entity.y] = 'S'
-                # print(states)
-                states.append(temp_map)
-                for entity in entities:
-                    entity.update(temp_ev, temp_map, self.entities)
-                    state.append((entity.x, entity.y))
+        return __solve(self.entities)
 
-                states.append(state)
+    def solve_min(self, plateau, nb_of_grass):
+        states = []
+        state = copy.deepcopy(plateau)
+        for entity in self.entities:
+            state[entity.x][entity.y] = 'S'
+        to_visit = [(state, copy.deepcopy(self.entities), [])]
+
+        def __solve():
+            while len(to_visit) != 0:
+                state, entities, solution = to_visit.pop(0)
+                # print(state)
                 if self.isWin(plateau, entities, nb_of_grass):
                     return solution
-                if state not in states:
-                    return min([__solve(entities, solution+["Left"]), __solve(entities, solution+["Right"]),
-                                __solve(entities, solution+["Up"]), __solve(entities, solution+["Down"])], key=len)
-
-        return __solve(self.entities, [])
+                if state in states:
+                    continue
+                else:
+                    states.append(state)
+                    for direction in ["Left", "Right", "Up", "Down"]:
+                        temp_ev = Event("Touche", direction)
+                        entitiesB = copy.deepcopy(entities)
+                        state = copy.deepcopy(plateau)
+                        for entity in entities:
+                            state[entity.x][entity.y] = 'S'
+                        for entity in entitiesB:
+                            entity.update(temp_ev, state)
+                        state = copy.deepcopy(plateau)
+                        for entity in entitiesB:
+                            state[entity.x][entity.y] = 'S'
+                        to_visit.append(
+                            (state, entitiesB, solution + [direction]))
+            return None
+        return __solve()
 
     def isWin(self, plateau, entities, nb_of_grass):
         grass_occupied = 0
@@ -167,6 +238,23 @@ class Application:
                 entity.sprite = "./media/sheep_grass.png"
             fl.image(w/y*entity.y, h/x*entity.x, w/y *
                      (entity.y + 1), h/x*(entity.x + 1), entity.sprite, ancrage='sw')
+
+    def save(self, plateau):
+        file_path = filedialog.asksaveasfilename(
+            filetypes=[("Save File", "*.sav"), ("All", "*")],
+            defaultextension='.sav')
+        if file_path == '':
+            return
+        with open(file_path, 'w') as f:
+            for line in plateau:
+                for char in line:
+                    if char is None:
+                        f.write('_')
+                    else:
+                        f.write(char)
+                f.write('\n')
+            for sheep in self.entities:
+                f.write('&' + str(sheep.x) + ',' + str(sheep.y) + '\n')
 
 
 app = Application()
