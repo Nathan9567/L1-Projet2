@@ -5,6 +5,7 @@ import tkinter as tk
 from collections import deque
 from time import time, sleep
 from tkinter.font import Font
+from tkinter import simpledialog
 
 try:
     from PIL import Image, ImageTk
@@ -75,6 +76,7 @@ class CustomCanvas:
 
         # root Tk object
         self.root = tk.Tk()
+        self.root.minsize(550, 400)
         self.root.title(title)
         if icon is not None:
             self.root.iconbitmap(icon)
@@ -198,6 +200,16 @@ def mise_a_jour():
         raise FenetreNonCree(
             "La fenêtre n'a pas été crée avec la fonction \"cree_fenetre\".")
     __canevas.update()
+
+#############################################################################
+# Entrée utilisateur
+#############################################################################
+
+def get_user_input(title, description):
+    if __canevas is None:
+        raise FenetreNonCree(
+            "La fenêtre n'a pas été crée avec la fonction \"cree_fenetre\".")
+    return simpledialog.askstring(title, description, parent=__canevas.root)
 
 
 #############################################################################

@@ -12,7 +12,7 @@ class Event:
         self.data = data
 
     def get_ev(self):
-        ev = fl.donne_ev()
-        self.type = fl.type_ev(ev)
+        self.ev = fl.donne_ev()
+        self.type = fl.type_ev(self.ev)
         if self.type == 'Touche':
-            self.data = fl.touche(ev)
+            self.data = fl.touche(self.ev)

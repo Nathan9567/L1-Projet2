@@ -8,7 +8,7 @@ class Button:
     Classe representant et dessinant un bouton grace à la bibliothèque fltk permetde detecter les clics et de leur assigner une fonction"
     """
 
-    def __init__(self, x: int, y: int, width: int, height: int, text: str, function: FunctionType, arg: any=None) -> None:
+    def __init__(self, x: int, y: int, width: int, height: int, text: str, function: FunctionType, *args: any) -> None:
         """
         Initialisation des attributs du bouton et de la fonction à appeler
         """
@@ -24,7 +24,7 @@ class Button:
             self.new_x, self.new_y, self.new_x + self.new_width, self.new_y + self.new_height, couleur='grey', remplissage='grey', epaisseur=1, tag='')
         self.text = text
         self.function = function
-        self.arg = arg
+        self.args = args
 
     def is_hovered(self) -> bool:
         """
@@ -40,7 +40,7 @@ class Button:
         Fonction à appeler chaque frame verifie les clics et met appelle la fonction si necessaire
         """
         textx, texty = fl.taille_texte(
-            self.text, taille=20)
+            self.text, taille = self.get_text_size())
         self.new_x = int(self.x / 100 * fl.get_width())
         self.new_y = int(self.y / 100 * fl.get_height())
         self.new_width = int(self.width / 100 * fl.get_width())
@@ -49,15 +49,15 @@ class Button:
             self.button = fl.rectangle(
                 self.new_x, self.new_y, self.new_x + self.new_width, self.new_y + self.new_height, couleur='grey', remplissage='red', epaisseur=1, tag='')
             self.btn_text = fl.texte(self.new_x + self.new_width - (self.new_x + self.new_width - self.new_x)/2 - textx/2, self.new_y + self.new_height - (self.new_y + self.new_height - self.new_y)/2 - texty/2, self.text, couleur='black',
-                                     ancrage='nw', police='Helvetica', taille=20, tag='')
+                                     ancrage='nw', police='Helvetica', taille=self.get_text_size(), tag='')
             if event.type == 'ClicGauche':
-                if self.arg is None:
-                    return self.function()
-                else:
-                    return self.function(self.arg)
+                return self.function(*self.args)
         else:
             self.button = fl.rectangle(
                 self.new_x, self.new_y, self.new_x + self.new_width, self.new_y + self.new_height, couleur='grey', remplissage='grey', epaisseur=1, tag='')
             self.btn_text = fl.texte(self.new_x + self.new_width - (self.new_x + self.new_width - self.new_x)/2 - textx/2, self.new_y + self.new_height - (self.new_y + self.new_height - self.new_y)/2 - texty/2, self.text, couleur='black',
-                                     ancrage='nw', police='Helvetica', taille=20, tag='')
+                                     ancrage='nw', police='Helvetica', taille=self.get_text_size(), tag='')
             self.clicked = False
+
+    def get_text_size(self):
+        return int(self.height / 100 * fl.get_height() * 0.5)
