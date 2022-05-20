@@ -19,7 +19,7 @@ class Sheep:
         cmpt = 0
         if event.type == 'Touche':
             if event.data == 'Up':
-                for x in reversed(range(0, self.x)):
+                for x in range(self.x, 0, -1):
                     if map[x][self.y] == 'S':
                         cmpt += 1
                     if map[x][self.y] == 'B':
@@ -31,11 +31,11 @@ class Sheep:
                     if map[x][self.y] == 'S':
                         cmpt += 1
                     if map[x][self.y] == 'B':
-                        self.x = (x - cmpt)
+                        self.x = (x - cmpt) - 1
                         return None
-                self.x = (len(map) - cmpt)
+                self.x = (len(map) - 1 - cmpt)
             elif event.data == 'Left':
-                for y in reversed(range(0, self.y)):
+                for y in range(self.y, 0, -1):
                     if map[self.x][y] == 'S':
                         cmpt += 1
                     if map[self.x][y] == 'B':
@@ -43,14 +43,14 @@ class Sheep:
                         return None
                 self.y = cmpt
             elif event.data == 'Right':
-                for y in range(self.y, len(map[0])):
+                for y in range(self.y, len(map[0])-1):
                     if map[self.x][y] == 'S':
                         cmpt += 1
                     if map[self.x][y] == 'B':
-                        self.y = (y - cmpt)
+                        self.y = (y - cmpt) - 1 
                         return None
-                self.y = (len(map[0]) - cmpt)
+                self.y = (len(map[0]) - 1 - cmpt)
             else:
                 return None
 
-        # print(self.x, self.y)
+        print(self.x, self.y)

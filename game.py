@@ -28,8 +28,11 @@ class Game():
         playing = True
         self.states = [copy.deepcopy(self.entities)]
         # print(self.solve(plateau, nb_of_grass))
-        print(self.solve_min(plateau, nb_of_grass))
+        # print(self.solve_min(plateau, nb_of_grass))
         while playing:
+            # temp_map = copy.deepcopy(plateau)
+            # for entity in self.entities:
+            #     temp_map[entity.x][entity.y] = 'S'
             total_of_grass_occupied = 0
             self.events.get_ev()
             if self.main_events(): 
@@ -41,15 +44,14 @@ class Game():
                     if len(self.states) > 1:
                         self.states.pop()
                         self.entities = copy.deepcopy(self.states[-1])
-            temp_map = copy.deepcopy(plateau)
-            for entity in self.entities:
-                temp_map[entity.x][entity.y] = 'S'
-            for entity in self.entities:
-                entity.update(self.events, temp_map)
-                if entity.sprite == "./media/sheep_grass.png":
-                    total_of_grass_occupied += 1
-            if self.states[-1] != self.entities and self.events.data != "F3":
-                self.states.append(copy.deepcopy(self.entities))
+                entities_dict = {}
+                for entity in self.entities:
+                    entity.update(self.events, plateau)
+                    if entity.sprite == "./media/sheep_grass.png":
+                        total_of_grass_occupied += 1
+                if self.states[-1] != self.entities and self.events.data != "F3":
+                    self.states.append(copy.deepcopy(self.entities))
+                print(plateau)
             self.render(plateau)
             if self.isWin(plateau, self.entities, nb_of_grass):
                 playing = False
@@ -134,6 +136,7 @@ class Game():
 
 
     def render(self, plateau):
+        print(plateau)
         fl.efface_tout()
         fl.rectangle(0, 0, fl.get_width(),
                      fl.get_height(), remplissage='#e0e0e0')
