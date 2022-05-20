@@ -18,6 +18,7 @@ class Application:
         self.fullscreen = False
         self.sprites = {'B': './media/bush.png', 'G': './media/grass.png'}
         self.states = list()
+        self.main_buttons = list()
 
     def run(self):
         self.running = True
@@ -27,31 +28,46 @@ class Application:
                         "Ricosheep", "media/sheep.ico")
 
         # Bouttons/ Menu
-        buttons = list()
+        buttons = self.main_buttons
 
         def play():
             plateau, nb_of_grass = self.load_map()
             self.play(plateau, nb_of_grass)
+        
+        def editor():
+            self.editor()
+
 
         # buttons.append(Button(200, 250, 600, 350, "Play", play))
-        buttons.append(Button(25, 25, 50, 30, "Play", play))
+        buttons.append(Button(25, 25, 40, 20, "Play", play))
+        buttons.append(Button(25, 50, 40, 20, "Editor", editor))
         # buttons.append(Button(200, 250, 600, 350, "Random Map", play))
 
         while self.running:
-            fl.efface_tout()
-            self.events.get_ev()
-            if self.events.type == "Quitte":
-                self.running = False
-                break
-            elif self.events.type == "Touche" and self.events.data == "F11":
-                self.fullscreen = not self.fullscreen
-                fl.set_fullscreen(self.fullscreen)
+            self.menu(buttons)
 
-            for button in buttons:
-                button.update(self.events)
-            fl.mise_a_jour()
         fl.ferme_fenetre()
 
+    
+    def menu(self, buttons):
+        fl.efface_tout()
+        self.events.get_ev()
+        if self.main_events(): return True
+
+        for button in buttons:
+            button.update(self.events)
+        fl.mise_a_jour()
+
+
+    def main_events(self):
+        if self.events.type == "Quitte":
+            self.running = False
+            return True
+        elif self.events.type == "Touche" and self.events.data == "F11":
+            self.fullscreen = not self.fullscreen
+            fl.set_fullscreen(self.fullscreen)
+    
+    
     def load_map(self):
         self.entities = list()
         file_path = filedialog.askopenfilename(
@@ -104,6 +120,7 @@ class Application:
             return [], 0
         return plateau, number_of_grass
 
+
     def play(self, plateau, nb_of_grass):
         if plateau == []:
             return None
@@ -114,14 +131,9 @@ class Application:
         while playing:
             total_of_grass_occupied = 0
             self.events.get_ev()
-            if self.events.type == "Quitte":
-                self.running = False
-                return None
-            elif self.events.type == "Touche":
-                if self.events.data == "F11":
-                    self.fullscreen = not self.fullscreen
-                    fl.set_fullscreen(self.fullscreen)
-                elif self.events.data == "F2":
+            if self.main_events(): return None
+            if self.events.type == "Touche":
+                if self.events.data == "F2":
                     self.save(plateau)
                 elif self.events.data == "F3":
                     if len(self.states) > 1:
@@ -148,6 +160,7 @@ class Application:
         fl.attend_clic_gauche()
         fl.efface_tout()
 
+
     def solve(self, plateau, nb_of_grass):
 
         states = []
@@ -172,6 +185,7 @@ class Application:
             return None
 
         return __solve(self.entities)
+
 
     def solve_min(self, plateau, nb_of_grass):
         states = []
@@ -206,6 +220,7 @@ class Application:
             return None
         return __solve()
 
+
     def isWin(self, plateau, entities, nb_of_grass):
         grass_occupied = 0
         for entity in entities:
@@ -214,6 +229,7 @@ class Application:
         if grass_occupied >= nb_of_grass:
             return True
         return False
+
 
     def render(self, plateau):
         fl.efface_tout()
@@ -239,6 +255,7 @@ class Application:
             fl.image(w/y*entity.y, h/x*entity.x, w/y *
                      (entity.y + 1), h/x*(entity.x + 1), entity.sprite, ancrage='sw')
 
+
     def save(self, plateau):
         file_path = filedialog.asksaveasfilename(
             filetypes=[("Save File", "*.sav"), ("All", "*")],
@@ -255,6 +272,27 @@ class Application:
                 f.write('\n')
             for sheep in self.entities:
                 f.write('&' + str(sheep.x) + ',' + str(sheep.y) + '\n')
+
+
+    def editor(self):
+        fl.efface_tout()
+        edit = True
+        self.events = Event("", None)
+        plateau = []
+        edit_buttons = []
+        def back():
+            self.menu(self.main_buttons)
+            return True
+        def items(item):
+            return item
+        edit_buttons.append(Button(0, 0, 10, 10, 'Back', back))
+        edit_buttons.append(Button(0, 10, 10, 10, 'Save', self.save, plateau))
+        edit_buttons.append(Button(0, 20, 10, 10, 'Sheep', items, 'Sheep'))
+        edit_buttons.append(Button(0, 30, 10, 10, 'Grass', items, 'Grass'))
+        edit_buttons.append(Button(0, 40, 10, 10, 'Bush', items, 'Bush'))
+        while edit:
+            if self.menu(edit_buttons):
+                edit = False
 
 
 app = Application()
