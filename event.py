@@ -12,6 +12,8 @@ class Event:
         self.data = data
 
     def get_ev(self):
+        """Fonction permettant d'actualiser les attributs de l'objet.
+        """
         self.ev = fl.donne_ev()
         self.type = fl.type_ev(self.ev)
         if self.type == 'Touche':

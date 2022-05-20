@@ -5,7 +5,10 @@ from types import FunctionType
 
 
 class Editor:
-    def __init__(self, menu: FunctionType, load: FunctionType, save: FunctionType, events: Event):
+    """Classe permettant l'édition et la création d'un plateau
+    """
+    def __init__(self, menu: FunctionType, load: FunctionType,
+                 save: FunctionType, events: Event):
         self.plateau = list()
         self.load = load
         self.editing = False
@@ -19,6 +22,11 @@ class Editor:
         self.editor()
     
     def editor(self):
+        """Fonction permettant de créer le premier menu de l'éditeur.
+        Avec le chargement ou la création d'un plateau.
+
+        Return None
+        """
         fl.efface_tout()
         self.editing = True
         edit_buttons = []
@@ -33,11 +41,14 @@ class Editor:
         def back():
             self.editing = False
         def new():
-            dimensions_str = fl.get_user_input("Taille", "Entrez les dimensions du plateau (en nombre de cases): largeur:hauteur")
+            dimensions_str = fl.get_user_input(
+                "Taille", "Entrez les dimensions du plateau "
+                "(en nombre de cases): largeur:hauteur")
             dimensions = [0, 0]
             dimensions[0] = int(dimensions_str.split(':')[0])
             dimensions[1] = int(dimensions_str.split(':')[1])
-            self.plateau = [ [None for _ in range(dimensions[0])] for _ in range(dimensions[1])] 
+            self.plateau = [[None for _ in range(dimensions[0])]
+                            for _ in range(dimensions[1])] 
             self.edit()
             pass
         edit_buttons.append(Button(0, 0, 33, 5, 'Back', back))
@@ -51,13 +62,20 @@ class Editor:
 
 
     def edit(self):
+        """Fonction permettant l'execution de l'édition du plateau.
+        Créer les boutons permettant la selection des différents éléments
+        et leur placement.
+
+        Return None
+        """
         editing_buttons = []
         def items(item):
             self.selected = item
         def back():
             self.editing = False
         editing_buttons.append(Button(0, 0, 20, 5, 'Back', back))
-        editing_buttons.append(Button(20, 0, 20, 5, 'Save', self.save, self.plateau))
+        editing_buttons.append(Button(20, 0, 20, 5, 'Save', self.save,
+                                      self.plateau))
         editing_buttons.append(Button(80, 0, 20, 5, 'Bush', items, 'B'))
         editing_buttons.append(Button(40, 0, 20, 5, 'Sheep', items, 'S'))
         editing_buttons.append(Button(60, 0, 20, 5, 'Grass', items, 'G'))
@@ -75,6 +93,11 @@ class Editor:
             
 
     def render(self):
+        """Fonction permettant de dessiner le plateau dans
+        la fenetre de l'éditeur.
+
+        Return None
+        """
         x, y = len(self.plateau), len(self.plateau[0])
         window_h = fl.get_height()
         w, h = fl.get_width(), window_h*0.95
@@ -92,10 +115,19 @@ class Editor:
             for py in range(len(self.plateau[0])):
                 if self.plateau[px][py] is not None:
                     fl.image(w/y*py, h/x*px+ h*0.05, w/y *
-                             (py + 1), h/x*(px + 1) + h*0.05, self.sprites[self.plateau[px][py]], ancrage='sw')
+                             (py + 1), h/x*(px + 1) + h*0.05,
+                             self.sprites[self.plateau[px][py]], ancrage='sw')
 
     
     def clicked_box(self, souris):
+        """Fonctio détectant la case cliquée avec la souris.
+
+        Args:
+            souris (tuple(int)): coordonnées (x, y) de la souris
+
+        Returns:
+            tuple(int): coordonnées (x, y) de la case cliquée
+        """
         x, y = len(self.plateau), len(self.plateau[0])
         window_h = fl.get_height()
         w, h = fl.get_width(), window_h*0.95

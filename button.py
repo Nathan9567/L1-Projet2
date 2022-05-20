@@ -60,4 +60,9 @@ class Button:
             self.clicked = False
 
     def get_text_size(self):
+        """Permet de récupérer la taille du texte
+
+        Returns:
+            int: taille du texte
+        """
         return int(self.height / 100 * fl.get_height() * 0.5)

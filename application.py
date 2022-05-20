@@ -3,13 +3,13 @@ import fltk as fl
 from event import Event
 from button import Button
 from tkinter import filedialog
-import copy
-from sheep import *
+from sheep import Sheep
 from game import Game
 from editor import Editor
 
 
 class Application:
+    """Classe rassemblant les différents éléments pour programme final."""
 
     def __init__(self):
         self.running = False
@@ -19,6 +19,10 @@ class Application:
         self.fullscreen = False
 
     def run(self):
+        """Fonction permettant de lancer le programme.
+
+        Return None
+        """
         self.running = True
 
         # Ouvrir fentre
@@ -28,6 +32,7 @@ class Application:
         # Bouttons/ Menu
         buttons = list()
 
+        # Fonctions pour les boutons
         def main_events(): return self.main_events()
         def save(plateau, entities):
             self.save(plateau, entities)
@@ -40,12 +45,12 @@ class Application:
 
         def play():
             plateau, nb_of_grass, entities = self.load_map()
-            game = Game(entities, plateau, nb_of_grass, main_events, save, self.events)
+            game = Game(entities, plateau, nb_of_grass,
+                        main_events, save, self.events)
 
         def editor():
             edit = Editor(menu, load_map, savetxt, self.events)
 
-        # buttons.append(Button(200, 250, 600, 350, "Play", play))
         buttons.append(Button(25, 25, 40, 20, "Play", play))
         buttons.append(Button(25, 50, 40, 20, "Editor", editor))
         # buttons.append(Button(200, 250, 600, 350, "Random Map", play))
@@ -58,6 +63,9 @@ class Application:
 
 
     def menu(self, buttons):
+        """Fonction permettant d'afficher certains boutons dans la fenetre.
+        
+        Return None"""
         fl.efface_tout()
         self.events.get_ev()
         if self.main_events(): return True
@@ -67,6 +75,12 @@ class Application:
 
 
     def main_events(self):
+        """Fonction permettant de gérer les évènements nécessaire
+        au bon fonctionnement du programme.
+
+        Returns:
+            bool: True si l'utilisateur veut quitter le programme, None sinon.
+        """
         if self.events.type == "Quitte":
             self.running = False
             return True
@@ -76,6 +90,13 @@ class Application:
     
     
     def load_map(self):
+        """Fonction permettant de charger un fichier de map.
+
+        Returns:
+            list: Liste de liste de str représentant le plateau.
+            int: Nombre de tuile de grass.
+            list: Liste d'entités représentant les Sheep.
+        """
         entities = list()
         file_path = filedialog.askopenfilename(
             filetypes=[("Map File", "*.txt"), ("Save File", "*.sav"),
@@ -129,6 +150,15 @@ class Application:
 
 
     def save(self, plateau, entities):
+        """Fonction afin de sauvegarder le plateau dans un fichier de
+        sauvegarde (.sav).
+
+        Args:
+            plateau (list): Liste de liste de str représentant le plateau.
+            entities (list): Liste d'entités représentant les Sheep.
+        
+        Return None
+        """
         file_path = filedialog.asksaveasfilename(
             filetypes=[("Save File", "*.sav"), ("All", "*")],
             defaultextension='.sav')
@@ -146,6 +176,14 @@ class Application:
                 f.write('&' + str(sheep.x) + ',' + str(sheep.y) + '\n')
     
     def savetxt(self, plateau):
+        """Fonction permettant de sauvegarder le plateau dans un fichier
+        de map (.txt).
+
+        Args:
+            plateau (list): Liste de liste de str représentant le plateau.
+        
+        Return None
+        """
         file_path = filedialog.asksaveasfilename(
             filetypes=[("Text File", "*.txt"), ("All", "*")],
             defaultextension='.txt')

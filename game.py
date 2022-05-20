@@ -23,6 +23,14 @@ class Game():
 
 
     def play(self, plateau, nb_of_grass):
+        """Fonction permettant de jouer au jeu.
+
+        Args:
+            plateau (list): Plateau de jeu
+            nb_of_grass (int): Nombre de touffe d'herbe dans le plateau
+
+        Return None
+        """
         if plateau == []:
             return None
         playing = True
@@ -66,7 +74,17 @@ class Game():
 
 
     def solve(self, plateau, nb_of_grass):
+        """Fonction permettant de résoudre le jeu avec un
+        algorithme de parcours en profondeur.
 
+        Args:
+            plateau (list): Plateau de jeu
+            nb_of_grass (int): Nombre de touffe d'herbe dans le plateau
+
+        Returns:
+            None: Si le jeu n'est pas résolvable
+            list: Liste des mouvements à effectuer pour résoudre le jeu
+        """
         states = []
 
         def __solve(entities):
@@ -92,6 +110,17 @@ class Game():
 
 
     def solve_min(self, plateau, nb_of_grass):
+        """Fonction permettant de résoudre le jeu avec un
+        algorithme de parcours en largeur.
+
+        Args:
+            plateau (list): Plateau de jeu
+            nb_of_grass (int): Nombre de touffe d'herbe dans le plateau
+
+        Returns:
+            None: Si le jeu n'est pas résolvable
+            list: Liste des mouvements à effectuer pour résoudre le jeu
+        """
         states = []
         state = copy.deepcopy(plateau)
         for entity in self.entities:
@@ -126,6 +155,16 @@ class Game():
 
 
     def isWin(self, plateau, entities, nb_of_grass):
+        """Fonction permettant de savoir si le jeu est gagné.
+
+        Args:
+            plateau (list): Plateau de jeu
+            entities (list): Liste des entités du jeu
+            nb_of_grass (int): Nombre de touffe d'herbe dans le plateau
+
+        Returns:
+            bool: True si le jeu est gagné, False sinon
+        """
         grass_occupied = 0
         for entity in entities:
             if plateau[entity.x][entity.y] == 'G':
@@ -136,6 +175,13 @@ class Game():
 
 
     def render(self, plateau):
+        """Fonction permettant de dessiner le plateau de jeu.
+
+        Args:
+            plateau (list): Plateau de jeu
+        
+        Return None
+        """
         print(plateau)
         fl.efface_tout()
         fl.rectangle(0, 0, fl.get_width(),
