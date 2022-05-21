@@ -1,26 +1,39 @@
 import fltk as fl
 
 from event import Event
-from button import Button
-from tkinter import filedialog
 import copy
-from sheep import *
 from types import FunctionType
 
-class Game():
+from settings import Settings
 
-    def __init__(self, entities: list, plateau: list, nb_of_grass: int, main_events: FunctionType, save_fun: FunctionType, events: Event):
+
+class Game:
+    """Classe rassemblant les différents éléments pour jouer au jeu."""
+    def __init__(self, entities: list, plateau: list, nb_of_grass: int,
+                 main_events: FunctionType, save_fun: FunctionType,
+                 events: Event, settings: Settings):
+        """Initialisation du jeu.
+
+        Args:
+            entities (list): Liste des entités du jeu
+            plateau (list): Plateau de jeu
+            nb_of_grass (int): Nombre de touffe d'herbe dans le plateau
+            main_events (FunctionType): Fonction permettant de toujours avoir
+                                        en execution certains evenements
+            save_fun (FunctionType): Fonction permettant de sauvegarder le jeu
+            events (Event): Evenements du jeu
+        """
         self.entities = entities
         self.events = events
         self.sprites = {'B': './media/bush.png', 'G': './media/grass.png'}
         self.plateau = plateau
         self.main_events = main_events
         self.save_fun = save_fun
+        self.settings = settings
         self.play(plateau, nb_of_grass)
 
     def save(self, plateau):
         self.save_fun(plateau, self.entities)
-
 
     def play(self, plateau, nb_of_grass):
         """Fonction permettant de jouer au jeu.
@@ -43,22 +56,26 @@ class Game():
             #     temp_map[entity.x][entity.y] = 'S'
             total_of_grass_occupied = 0
             self.events.get_ev()
-            if self.main_events(): 
+            if self.main_events():
                 return None
             if self.events.type == "Touche":
-                if self.events.data == "F2":
+                if self.events.data == self.settings['Save']:
                     self.save(plateau)
-                elif self.events.data == "F3":
+                elif self.events.data == self.settings['Previous move']:
                     if len(self.states) > 1:
                         self.states.pop()
                         self.entities = copy.deepcopy(self.states[-1])
+                elif self.events.data == self.settings['Back']:
+                    playing = False
+                    return None
                 entities_dict = {}
                 for entity in self.entities:
                     entity.update(self.events, plateau)
                     if entity.sprite == "./media/sheep_grass.png":
                         total_of_grass_occupied += 1
-                if self.states[-1] != self.entities and self.events.data != "F3":
-                    self.states.append(copy.deepcopy(self.entities))
+                if self.states[-1] != self.entities:
+                    if self.events.data != self.settings['Previous move']:
+                        self.states.append(copy.deepcopy(self.entities))
                 print(plateau)
             self.render(plateau)
             if self.isWin(plateau, self.entities, nb_of_grass):
@@ -66,12 +83,12 @@ class Game():
                 textsize = int(24 * max(fl.get_width(), fl.get_height()) / 800)
                 textx, texty = fl.taille_texte("You win !", taille=textsize)
                 fl.texte(fl.get_width()/2 - textx/2,
-                         fl.get_height()/2 - texty/2, "You win !", taille=textsize)
+                         fl.get_height()/2 - texty/2, "You win !",
+                         taille=textsize)
 
             fl.mise_a_jour()
-        fl.attend_clic_gauche()
+        fl.attente(3)
         fl.efface_tout()
-
 
     def solve(self, plateau, nb_of_grass):
         """Fonction permettant de résoudre le jeu avec un
@@ -107,7 +124,6 @@ class Game():
             return None
 
         return __solve(self.entities)
-
 
     def solve_min(self, plateau, nb_of_grass):
         """Fonction permettant de résoudre le jeu avec un
@@ -153,7 +169,6 @@ class Game():
             return None
         return __solve()
 
-
     def isWin(self, plateau, entities, nb_of_grass):
         """Fonction permettant de savoir si le jeu est gagné.
 
@@ -173,13 +188,12 @@ class Game():
             return True
         return False
 
-
     def render(self, plateau):
         """Fonction permettant de dessiner le plateau de jeu.
 
         Args:
             plateau (list): Plateau de jeu
-        
+
         Return None
         """
         print(plateau)
@@ -198,12 +212,12 @@ class Game():
         for px in range(len(plateau)):
             for py in range(len(plateau[0])):
                 if plateau[px][py] is not None:
-                    fl.image(w/y*py, h/x*px, w/y *
-                             (py + 1), h/x*(px + 1), self.sprites[plateau[px][py]], ancrage='sw')
+                    fl.image(w/y*py, h/x*px, w/y * (py + 1), h/x*(px + 1),
+                             self.sprites[plateau[px][py]], ancrage='sw')
 
         for entity in self.entities:
             entity.sprite = "./media/sheep.png"
             if plateau[entity.x][entity.y] == 'G':
                 entity.sprite = "./media/sheep_grass.png"
-            fl.image(w/y*entity.y, h/x*entity.x, w/y *
-                     (entity.y + 1), h/x*(entity.x + 1), entity.sprite, ancrage='sw')
+            fl.image(w/y*entity.y, h/x*entity.x, w/y * (entity.y + 1),
+                     h/x*(entity.x + 1), entity.sprite, ancrage='sw')

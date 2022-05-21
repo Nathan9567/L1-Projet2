@@ -3,6 +3,7 @@ import fltk as fl
 from event import Event
 from button import Button
 from tkinter import filedialog
+from settings import Settings
 from sheep import Sheep
 from game import Game
 from editor import Editor
@@ -12,11 +13,16 @@ class Application:
     """Classe rassemblant les différents éléments pour programme final."""
 
     def __init__(self):
+        """Constructeur de la classe Application."""
         self.running = False
         self.events = Event("", None)
         self.height = 600
         self.width = 800
         self.fullscreen = False
+        self.dict_settings = {'Up': 'Up', 'Down': 'Down', 'Left': 'Left',
+                              'Right': 'Right', 'Save': 'F12',
+                              'Fullscreen': 'F11', 'Back': 'Escape',
+                              'Previous move': 'F3'}
 
     def run(self):
         """Fonction permettant de lancer le programme.
@@ -34,45 +40,83 @@ class Application:
 
         # Fonctions pour les boutons
         def main_events(): return self.main_events()
+
         def save(plateau, entities):
             self.save(plateau, entities)
+
         def savetxt(plateau):
             self.savetxt(plateau)
+
         def menu(buttons):
             return self.menu(buttons)
+
         def load_map():
             return self.load_map()
 
         def play():
             plateau, nb_of_grass, entities = self.load_map()
-            game = Game(entities, plateau, nb_of_grass,
-                        main_events, save, self.events)
+            Game(entities, plateau, nb_of_grass,
+                 main_events, save, self.events, self.dict_settings)
 
         def editor():
-            edit = Editor(menu, load_map, savetxt, self.events)
+            Editor(menu, load_map, savetxt, self.events, self.dict_settings)
 
-        buttons.append(Button(25, 25, 40, 20, "Play", play))
-        buttons.append(Button(25, 50, 40, 20, "Editor", editor))
+        def how_to_play():
+            self.how_to_play()
+
+        def settings():
+            setting = Settings(menu, self.events, self.dict_settings)
+            self.dict_settings = setting.get_settings()
+
+        buttons.append(Button(30, 15, 40, 20, "Play", play))
+        buttons.append(Button(30, 40, 40, 20, "Editor", editor))
+        buttons.append(Button(30, 65, 40, 20, "Help", how_to_play))
+        buttons.append(Button(2, 2, 10, 12, "", settings))
         # buttons.append(Button(200, 250, 600, 350, "Random Map", play))
 
         while self.running:
             self.menu(buttons)
+            fl.image(2/100 * fl.get_width(), 2/100 * fl.get_height(),
+                     12/100 * fl.get_width(), 14/100 * fl.get_height(),
+                     "media/gear.png", ancrage='sw')
             fl.mise_a_jour()
 
         fl.ferme_fenetre()
 
+    def how_to_play(self):
+        while True:
+            fl.efface_tout()
+            self.events.get_ev()
+            if self.main_events():
+                return True
+            explanation = ["The goal is to fill all the grass with a sheep.",
+                           "You can move the sheep with the arrow keys.",
+                           "If you want to see or edit controls, you can",
+                           "back to the menu by pressing a key and click",
+                           "on the gear icon at the top left corner."]
+            w = fl.get_width()
+            h = fl.get_height()
+            fl.texte(w/2, 10/100 * h, "How to play :", couleur='black',
+                     ancrage='center', police='Helvetica', taille=28)
+            for i, text in enumerate(explanation):
+                fl.texte(w/2, (22 + (i*6))/100 * h, text, couleur='black',
+                         ancrage='center', police='Helvetica', taille=20)
+            fl.mise_a_jour()
+
+            if self.events.type is not None:
+                return True
 
     def menu(self, buttons):
         """Fonction permettant d'afficher certains boutons dans la fenetre.
-        
+
         Return None"""
         fl.efface_tout()
         self.events.get_ev()
-        if self.main_events(): return True
+        if self.main_events():
+            return True
 
         for button in buttons:
             button.update(self.events)
-
 
     def main_events(self):
         """Fonction permettant de gérer les évènements nécessaire
@@ -87,8 +131,50 @@ class Application:
         elif self.events.type == "Touche" and self.events.data == "F11":
             self.fullscreen = not self.fullscreen
             fl.set_fullscreen(self.fullscreen)
-    
-    
+
+    def load_map_txt(self, file_path, plateau, entities, number_of_grass):
+        with open(file_path, 'r') as f:
+            for i, line in enumerate(f):
+                temp = []
+                for j, char in enumerate(line):
+                    if char == '_':
+                        temp.append(None)
+                    elif char == 'S':
+                        entities.append(Sheep(i, j, self.dict_settings))
+                        temp.append(None)
+                    elif char == 'G':
+                        number_of_grass += 1
+                        temp.append(char)
+                    elif char == '\n':
+                        continue
+                    else:
+                        temp.append(char)
+                plateau.append(temp)
+        return plateau, entities, number_of_grass
+
+    def load_map_save(self, file_path, plateau, entities, number_of_grass):
+        with open(file_path, 'r') as f:
+            for line in f:
+                if line[0] == '&':
+                    coord = line[1:-1].split(',')
+                    entities.append(
+                        Sheep(int(coord[0]), int(coord[1]),
+                              self.dict_settings))
+                    continue
+                temp = []
+                for char in line:
+                    if char == '_':
+                        temp.append(None)
+                    elif char == 'G':
+                        number_of_grass += 1
+                        temp.append(char)
+                    elif char == '\n':
+                        continue
+                    else:
+                        temp.append(char)
+                plateau.append(temp)
+        return plateau, entities, number_of_grass
+
     def load_map(self):
         """Fonction permettant de charger un fichier de map.
 
@@ -107,47 +193,14 @@ class Application:
         number_of_grass = 0
         extension = file_path.split('.')[-1]
         if extension == 'txt':
-            with open(file_path, 'r') as f:
-                for i, line in enumerate(f):
-                    temp = []
-                    for j, char in enumerate(line):
-                        if char == '_':
-                            temp.append(None)
-                        elif char == 'S':
-                            entities.append(Sheep(i, j))
-                            temp.append(None)
-                        elif char == 'G':
-                            number_of_grass += 1
-                            temp.append(char)
-                        elif char == '\n':
-                            continue
-                        else:
-                            temp.append(char)
-                    plateau.append(temp)
+            plateau, entities, number_of_grass = self.load_map_txt(
+                file_path, plateau, entities, number_of_grass)
         elif extension == 'sav':
-            with open(file_path, 'r') as f:
-                for line in f:
-                    if line[0] == '&':
-                        coord = line[1:-1].split(',')
-                        entities.append(
-                            Sheep(int(coord[0]), int(coord[1])))
-                        continue
-                    temp = []
-                    for char in line:
-                        if char == '_':
-                            temp.append(None)
-                        elif char == 'G':
-                            number_of_grass += 1
-                            temp.append(char)
-                        elif char == '\n':
-                            continue
-                        else:
-                            temp.append(char)
-                    plateau.append(temp)
+            plateau, entities, number_of_grass = self.load_map_save(
+                file_path, plateau, entities, number_of_grass)
         else:
             return [], 0, []
         return plateau, number_of_grass, entities
-
 
     def save(self, plateau, entities):
         """Fonction afin de sauvegarder le plateau dans un fichier de
@@ -156,7 +209,7 @@ class Application:
         Args:
             plateau (list): Liste de liste de str représentant le plateau.
             entities (list): Liste d'entités représentant les Sheep.
-        
+
         Return None
         """
         file_path = filedialog.asksaveasfilename(
@@ -174,14 +227,14 @@ class Application:
                 f.write('\n')
             for sheep in entities:
                 f.write('&' + str(sheep.x) + ',' + str(sheep.y) + '\n')
-    
+
     def savetxt(self, plateau):
         """Fonction permettant de sauvegarder le plateau dans un fichier
         de map (.txt).
 
         Args:
             plateau (list): Liste de liste de str représentant le plateau.
-        
+
         Return None
         """
         file_path = filedialog.asksaveasfilename(
@@ -197,7 +250,3 @@ class Application:
                     else:
                         f.write(char)
                 f.write('\n')
-
-
-app = Application()
-app.run()
