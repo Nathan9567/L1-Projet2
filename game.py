@@ -35,6 +35,32 @@ class Game:
     def save(self, plateau):
         self.save_fun(plateau, self.entities)
 
+    def replace_entities(self, entities, last_event_data):
+        """Fonction permettant de remplacer les entités du jeu.
+
+        Args:
+            entities (list): Liste des entités du jeu
+
+        Return None
+        """
+        if last_event_data == self.settings['Up']:
+            for table in entities.values():
+                for i, entity in enumerate(table):
+                    entity.x += i
+        elif last_event_data == self.settings['Down']:
+            for table in entities.values():
+                for i, entity in enumerate(table):
+                    entity.x -= i
+        elif last_event_data == self.settings['Left']:
+            for table in entities.values():
+                for i, entity in enumerate(table):
+                    entity.y += i
+        elif last_event_data == self.settings['Right']:
+            for table in entities.values():
+                for i, entity in enumerate(table):
+                    entity.y -= i
+            
+
     def play(self, plateau, nb_of_grass):
         """Fonction permettant de jouer au jeu.
 
@@ -48,8 +74,8 @@ class Game:
             return None
         playing = True
         self.states = [copy.deepcopy(self.entities)]
-        # print(self.solve(plateau, nb_of_grass))
-        # print(self.solve_min(plateau, nb_of_grass))
+        #print(self.solve(plateau, nb_of_grass))
+        print(self.solve_min(plateau, nb_of_grass))
         while playing:
             # temp_map = copy.deepcopy(plateau)
             # for entity in self.entities:
@@ -70,13 +96,12 @@ class Game:
                     return None
                 entities_dict = {}
                 for entity in self.entities:
-                    entity.update(self.events, plateau)
-                    if entity.sprite == "./media/sheep_grass.png":
-                        total_of_grass_occupied += 1
+                    entity.update(self.events, plateau, entities_dict)
+                
+                self.replace_entities(entities_dict, self.events.data)
                 if self.states[-1] != self.entities:
                     if self.events.data != self.settings['Previous move']:
                         self.states.append(copy.deepcopy(self.entities))
-                print(plateau)
             self.render(plateau)
             if self.isWin(plateau, self.entities, nb_of_grass):
                 playing = False
@@ -106,8 +131,8 @@ class Game:
 
         def __solve(entities):
             state = copy.deepcopy(plateau)
-            for entity in entities:
-                state[entity.x][entity.y] = 'S'
+            # for entity in entities:
+            #     state[entity.x][entity.y] = 'S'
             if self.isWin(plateau, entities, nb_of_grass):
                 return []
             if state in states:
@@ -116,8 +141,10 @@ class Game:
             for direction in ["Left", "Right", "Up", "Down"]:
                 temp_ev = Event("Touche", direction)
                 entitiesB = copy.deepcopy(entities)
+                temp_entity_dict = {}
                 for entity in entitiesB:
-                    entity.update(temp_ev, state)
+                    entity.update(temp_ev, state, temp_entity_dict)
+                self.replace_entities(temp_entity_dict, direction)
                 result = __solve(entitiesB)
                 if result is not None:
                     return [direction] + result
@@ -146,7 +173,6 @@ class Game:
         def __solve():
             while len(to_visit) != 0:
                 state, entities, solution = to_visit.pop(0)
-                # print(state)
                 if self.isWin(plateau, entities, nb_of_grass):
                     return solution
                 if state in states:
@@ -156,11 +182,10 @@ class Game:
                     for direction in ["Left", "Right", "Up", "Down"]:
                         temp_ev = Event("Touche", direction)
                         entitiesB = copy.deepcopy(entities)
-                        state = copy.deepcopy(plateau)
-                        for entity in entities:
-                            state[entity.x][entity.y] = 'S'
+                        temp_entity_dict = {}
                         for entity in entitiesB:
-                            entity.update(temp_ev, state)
+                            entity.update(temp_ev, plateau, temp_entity_dict)
+                        self.replace_entities(temp_entity_dict, direction)
                         state = copy.deepcopy(plateau)
                         for entity in entitiesB:
                             state[entity.x][entity.y] = 'S'
@@ -196,7 +221,6 @@ class Game:
 
         Return None
         """
-        print(plateau)
         fl.efface_tout()
         fl.rectangle(0, 0, fl.get_width(),
                      fl.get_height(), remplissage='#e0e0e0')
