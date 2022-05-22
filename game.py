@@ -251,6 +251,8 @@ class Game:
         fl.efface_tout()
         fl.rectangle(0, 0, fl.get_width(),
                      fl.get_height(), remplissage='#e0e0e0')
+        fl.image(0, 0, fl.get_width(), fl.get_height(), 'media/background.png',
+                 ancrage='sw')
         x, y = len(plateau), len(plateau[0])
         w, h = fl.get_width(), fl.get_height()
         for i in range(x):
@@ -296,7 +298,6 @@ class Game:
                 temp_grass = grass
                 bush = random.randint(4, int(x*y/2))
                 temp_plateau = [None for _ in range(y*x)]
-                print(x, y, sheep, grass, bush)
                 for i in range(len(temp_plateau)):
                     if sheep > 0:
                         temp_plateau[i] = 'S'
@@ -322,7 +323,7 @@ class Game:
                             temp.append(temp_plateau[i*x+j])
                     self.plateau.append(temp)
                 sol = self.solve_min(self.plateau, grass)
-            print(sol)
+                self.nb_of_grass = grass
             self.play()
         
         def generate_map():
@@ -389,9 +390,11 @@ class Game:
                     return None
                 elif self.events.data == self.settings['Solver']:
                     self.graphical_solver(self.plateau, self.nb_of_grass)
+                    self.render(self.plateau)
                     continue
                 elif self.events.data == self.settings['Clue']:
                     self.clue(self.plateau, self.nb_of_grass)
+                    self.render(self.plateau)
                     continue
                 entities_dict = {}
                 for entity in self.entities:
