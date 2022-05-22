@@ -25,8 +25,7 @@ class Application:
                               'Previous move': 'F3', 'Solver': 'F4',
                               'Clue': 'F1'}
         self.screensize = (self.width, self.height)
-        self.background = "media/background.png"
-        self.gamebackground = "media/gamebackground.png"
+        self.background = False
 
     def run(self):
         """Fonction permettant de lancer le programme.
@@ -34,7 +33,7 @@ class Application:
         Return None
         """
         self.running = True
-
+        self.background = False
         # Ouvrir fentre
         fl.cree_fenetre(self.width, self.height,
                         "Ricosheep", "media/sheep.ico")
@@ -61,20 +60,21 @@ class Application:
             return self.is_screensize_change()
 
         def play():
-            print(self.dict_settings)
-            self.events = Event("", None)
+            self.background = False
             Game(load_map, main_events, save, self.events,
                  self.dict_settings, menu, screen_size)
-            #self.events.get_ev()
 
         def editor():
+            self.background = False
             self.events = Event("", None)
             Editor(menu, load_map, savetxt, self.events, self.dict_settings, screen_size)
 
         def how_to_play():
+            self.background = False
             self.how_to_play()
 
         def settings(bool):
+            self.background = False
             setting = Settings(menu, self.events, self.dict_settings, screen_size)
             if bool is True:
                 setting.settings()
@@ -83,9 +83,9 @@ class Application:
             return setting
 
         buttons.append(Button(2, 2, 10, 12, "", settings, True))
-        buttons.append(Button(30, 15, 40, 20, "Play", play))
-        buttons.append(Button(30, 40, 40, 20, "Editor", editor))
-        buttons.append(Button(30, 65, 40, 20, "Rules", how_to_play))
+        buttons.append(Button(30, 25, 40, 15, "Play", play))
+        buttons.append(Button(30, 45, 40, 15, "Editor", editor))
+        buttons.append(Button(30, 65, 40, 15, "Rules", how_to_play))
         # buttons.append(Button(200, 250, 600, 350, "Random Map", play))
 
         settings(False).import_settings()
@@ -93,7 +93,11 @@ class Application:
 
         # Boucle principale
         while self.running:
-            fl.efface_tout()
+            fl.efface('b')
+            if not self.background or self.is_screensize_change():
+                fl.image(0, 0, fl.get_width(), fl.get_height(),
+                         './media/background/Ricosheep.png', ancrage='sw')
+                self.background = True
             self.menu(buttons)
             fl.image(2/100 * fl.get_width(), 2/100 * fl.get_height(),
                      12/100 * fl.get_width(), 14/100 * fl.get_height(),
@@ -104,6 +108,11 @@ class Application:
         fl.ferme_fenetre()
 
     def how_to_play(self):
+        """Fonction permettant d'afficher le menu de l'aide.
+
+        Returns:
+            bool: True si l'utilisateur veut quitter le programme, None sinon.
+        """
         while True:
             fl.efface_tout()
             self.events.get_ev()

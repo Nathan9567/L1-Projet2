@@ -40,6 +40,7 @@ class Game:
         self.load_map = load_map
         self.nb_of_grass = 0
         self.is_screensize_changed = screensize
+        self.background = False
         self.player()
 
     def save(self, plateau):
@@ -288,6 +289,7 @@ class Game:
 
         def back():
             self.playing = False
+            self.background = False
 
         def random_map():
             sol = None
@@ -326,9 +328,11 @@ class Game:
                 sol = self.solve_min(self.plateau, grass)
                 self.nb_of_grass = grass
             self.play()
+            self.background = False
         
         def generate_map():
-            sol = None
+            pass
+            """ sol = None
             i = 0
             dim = fl.get_user_input("Dimension de la grille", "longeur:largeur")
             try:
@@ -374,25 +378,29 @@ class Game:
                 self.nb_of_grass = grass
                 i += 1
             self.play()
-
-
+            self.background = False """
 
         def load():
             self.plateau, self.nb_of_grass, self.entities = self.load_map()
             if self.plateau == []:
                 return None
-            self.playing = False
             self.play()
+            self.background = False
 
         player_buttons.append(Button(2, 2, 15, 10, "Back", back))
         player_buttons.append(Button(30, 10, 40, 15, "Load map", load))
         player_buttons.append(Button(30, 45, 40, 15, "Set value", generate_map))
         player_buttons.append(Button(30, 65, 40, 15, "Just random", random_map))
 
+        fl.image(0, 0, fl.get_width(), fl.get_height(),
+                 './media/background/gazon.png', ancrage='sw')
         fl.texte(35/100*fl.get_width(), 35/100*fl.get_height(), 'Random map :',
                  taille=int(10/100 * fl.get_height() * 0.5),
                  police='Helvetica', couleur='black', ancrage='nw')
         while self.playing:
+            fl.efface('b')
+            if self.is_screensize_changed() or not self.background:
+                self.background = True
             if self.menu(player_buttons):
                 return None
             if self.events.type == "Touche":
@@ -427,7 +435,6 @@ class Game:
                         self.entities = copy.deepcopy(self.states[-1])
                 elif self.events.data == self.settings['Back']:
                     playing = False
-                    self.playing = False
                     return None
                 elif self.events.data == self.settings['Solver']:
                     self.graphical_solver(self.plateau, self.nb_of_grass)

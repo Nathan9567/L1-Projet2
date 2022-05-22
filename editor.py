@@ -41,8 +41,10 @@ class Editor:
         fl.efface_tout()
         self.editing[0] = True
         edit_buttons = []
+        self.background = False
 
         def load():
+            self.background = False
             self.plateau, _, entities = self.load()
             for entity in entities:
                 self.plateau[entity.x][entity.y] = 'S'
@@ -52,9 +54,11 @@ class Editor:
             self.edit()
 
         def back():
+            self.background = False
             self.editing[0] = False
 
         def new():
+            self.background = False
             dimensions_str = fl.get_user_input(
                 "Taille", "Entrez les dimensions du plateau "
                 "(en nombre de cases): largeur:hauteur")
@@ -73,9 +77,15 @@ class Editor:
         edit_buttons.append(Button(0, 0, 33, 5, 'Back', back))
         edit_buttons.append(Button(33, 0, 34, 5, 'Load', load))
         edit_buttons.append(Button(67, 0, 33, 5, 'New', new))
-
+        
+        self.plateau = [[None for _ in range(5)] for _ in range(5)]
+        self.render()
         while self.editing[0]:
-            fl.efface_tout()
+            fl.efface('b')
+            if self.is_screensize_changed() or not self.background:
+                self.plateau = [[None for _ in range(5)] for _ in range(5)]
+                self.render()
+                self.background = True
             if self.menu(edit_buttons):
                 return None
             if self.events.type == "Touche":
@@ -106,7 +116,7 @@ class Editor:
         editing_buttons.append(Button(80, 0, 20, 5, 'Bush', items, 'B'))
         self.render()
         while self.editing[1]:
-            print(self.events.type)
+            # print(self.events.type)
             if self.menu(editing_buttons):
                 self.editing[0] = False
                 return None
@@ -167,6 +177,6 @@ class Editor:
         x, y = len(self.plateau), len(self.plateau[0])
         window_h = fl.get_height()
         w, h = fl.get_width(), window_h*0.95
-        box_x = int(souris[0]/w * x)
-        box_y = int((souris[1]-window_h*0.05)/h * y)
+        box_x = int(souris[0]/w * y)
+        box_y = int((souris[1]-window_h*0.05)/h * x)
         return (box_x, box_y)
