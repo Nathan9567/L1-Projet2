@@ -34,7 +34,7 @@ class Button:
         self.button = fl.rectangle(
             self.new_x, self.new_y, self.new_x + self.new_width,
             self.new_y + self.new_height, couleur='grey', remplissage='grey',
-            epaisseur=1, tag='')
+            epaisseur=1, tag='b')
         self.text = text
         self.function = function
         self.args = args
@@ -71,28 +71,28 @@ class Button:
             self.button = fl.rectangle(
                 self.new_x, self.new_y, self.new_x + self.new_width,
                 self.new_y + self.new_height, couleur='grey',
-                remplissage='red', epaisseur=1, tag='')
+                remplissage='red', epaisseur=1, tag='b')
             self.btn_text = fl.texte(
                 self.new_x + self.new_width - (self.new_x + self.new_width
                                                - self.new_x)/2 - textx/2,
                 self.new_y + self.new_height - (self.new_y + self.new_height
                                                 - self.new_y)/2 - texty/2,
                 self.text, couleur='black', ancrage='nw', police='Helvetica',
-                taille=self.get_text_size(), tag='')
+                taille=self.get_text_size(), tag='b')
             if event.type == 'ClicGauche':
                 return self.function(*self.args)
         else:
             self.button = fl.rectangle(
                 self.new_x, self.new_y, self.new_x + self.new_width,
                 self.new_y + self.new_height, couleur='grey',
-                remplissage='grey', epaisseur=1, tag='')
+                remplissage='grey', epaisseur=1, tag='b')
             self.btn_text = fl.texte(
                 self.new_x + self.new_width - (self.new_x + self.new_width
                                                - self.new_x)/2 - textx/2,
                 self.new_y + self.new_height - (self.new_y + self.new_height
                                                 - self.new_y)/2 - texty/2,
                 self.text, couleur='black', ancrage='nw', police='Helvetica',
-                taille=self.get_text_size(), tag='')
+                taille=self.get_text_size(), tag='b')
             self.clicked = False
 
     def get_text_size(self):

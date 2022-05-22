@@ -45,4 +45,22 @@ Nous nous sommes permis de modifié fltk pour pouvoir faire des nombreuses chose
 - Redimensionner les images ;
 - Créer une fenetre de saisi tkinter ;
 
-Grâce à ses changements, vous pouvez changer la résolution de la fenetre, vous mettre en plein écran, et de nombreuses autres choses.
+Grâce à ses changements, vous pouvez changer la résolution de la fenetre, vous mettre en plein écran, et de nombreuses autres choses. <br>
+Le programme est entièrement réalisé avec du code orienté objet. <br>
+Il nous a été demandé de réalisé le programme de façon à ce que les déplacements s'effectuent en O(nm) et non en O(n^2), nous l'avons fait ! <br>
+Pour ce qui des problèmes difficiles, trouver un algorithme en O(nm) nous a demandé une réflexion sur les algorithmes de déplacements et de recherches. <br>
+Nous avons finalement utilisé les dictionnaires ce qui a resolu notre problème et permis une fonction de résolu plus rapide. <br>
+
+### Organisation du travail
+Nous avons réalisé le programme en groupes de 3 personnes. <br>
+Nous nous étions mis d'accord avec Karim pour faire équipe et nous avons décidé de prendre une troisième personne. <br>
+Nous avons fait le choix de beaucoup travailler en groupe à l'aide des TP et de discord. <br>
+Nous avons travaillé à hauteur de 4h par semaine en moyenne. <br> 
+Nous nous sommes répartis les grosses taches et nous avons donc réalisé le projet sans gros problème. <br>
+La seule chose qui nous a limité est fltk mais nous l'avions modifié afin d'avoir une version avec un petit peu plus de fonctionnalités. <br>
+
+### Conclusion
+Le projet demandé a été réalisé, cependant il a de nombreuses fontionnalités que nous aurions aimé ajouté. <br>
+Malheuresement, par manque de temps, nous n'avons pas pu réaliser toutes nos idées. <br>
+Nous aurions voulu faire un système de progression avec différents niveaux de difficulté. <br>
+Ses cartes auraient été générées aléatoirement avec des paramètres donnés. <br>

@@ -22,7 +22,11 @@ class Application:
         self.dict_settings = {'Up': 'Up', 'Down': 'Down', 'Left': 'Left',
                               'Right': 'Right', 'Save': 'F12',
                               'Fullscreen': 'F11', 'Back': 'Escape',
-                              'Previous move': 'F3'}
+                              'Previous move': 'F3', 'Solver': 'F4',
+                              'Clue': 'F1'}
+        self.screensize = (self.width, self.height)
+        self.background = "media/background.png"
+        self.gamebackground = "media/gamebackground.png"
 
     def run(self):
         """Fonction permettant de lancer le programme.
@@ -52,35 +56,48 @@ class Application:
 
         def load_map():
             return self.load_map()
+        
+        def screen_size():
+            return self.is_screensize_change()
 
         def play():
-            plateau, nb_of_grass, entities = self.load_map()
-            Game(entities, plateau, nb_of_grass,
-                 main_events, save, self.events, self.dict_settings)
+            Game(load_map, main_events, save, self.events,
+                 self.dict_settings, menu, screen_size)
+            self.events.get_ev()
 
         def editor():
-            Editor(menu, load_map, savetxt, self.events, self.dict_settings)
+            Editor(menu, load_map, savetxt, self.events, self.dict_settings, screen_size)
 
         def how_to_play():
             self.how_to_play()
 
-        def settings():
-            setting = Settings(menu, self.events, self.dict_settings)
-            self.dict_settings = setting.get_settings()
+        def settings(bool):
+            setting = Settings(menu, self.events, self.dict_settings, screen_size)
+            if bool is True:
+                setting.settings()
+                self.dict_settings = setting.get_settings()
+                return None
+            return setting
 
         buttons.append(Button(30, 15, 40, 20, "Play", play))
         buttons.append(Button(30, 40, 40, 20, "Editor", editor))
-        buttons.append(Button(30, 65, 40, 20, "Help", how_to_play))
-        buttons.append(Button(2, 2, 10, 12, "", settings))
+        buttons.append(Button(30, 65, 40, 20, "Rules", how_to_play))
+        buttons.append(Button(2, 2, 10, 12, "", settings, True))
         # buttons.append(Button(200, 250, 600, 350, "Random Map", play))
 
+        settings(False).import_settings()
+        self.dict_settings = settings(False).get_settings()
+
+        # Boucle principale
         while self.running:
+            fl.efface_tout()
             self.menu(buttons)
             fl.image(2/100 * fl.get_width(), 2/100 * fl.get_height(),
                      12/100 * fl.get_width(), 14/100 * fl.get_height(),
                      "media/gear.png", ancrage='sw')
             fl.mise_a_jour()
 
+        settings(False).save_settings()
         fl.ferme_fenetre()
 
     def how_to_play(self):
@@ -110,13 +127,13 @@ class Application:
         """Fonction permettant d'afficher certains boutons dans la fenetre.
 
         Return None"""
-        fl.efface_tout()
+        fl.efface('b')
         self.events.get_ev()
-        if self.main_events():
-            return True
-
         for button in buttons:
             button.update(self.events)
+
+        if self.main_events():
+            return True
 
     def main_events(self):
         """Fonction permettant de gérer les évènements nécessaire
@@ -250,3 +267,9 @@ class Application:
                     else:
                         f.write(char)
                 f.write('\n')
+
+    def is_screensize_change(self):
+        if self.screensize != (fl.get_width(), fl.get_height()):
+            self.screensize = (fl.get_width(), fl.get_height())
+            return True
+        return False

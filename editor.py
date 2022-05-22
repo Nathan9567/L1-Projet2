@@ -8,7 +8,8 @@ class Editor:
     """Classe permettant l'édition et la création d'un plateau.
     """
     def __init__(self, menu: FunctionType, load: FunctionType,
-                 save: FunctionType, events: Event, settings: dict):
+                 save: FunctionType, events: Event, settings: dict,
+                 screensize: FunctionType):
         """Constructeur de l'éditeur.
 
         Args:
@@ -28,6 +29,7 @@ class Editor:
         self.sprites = {'B': './media/bush.png', 'G': './media/grass.png',
                         'S': './media/sheep.png'}
         self.settings = settings
+        self.is_screensize_changed = screensize
         self.editor()
 
     def editor(self):
@@ -72,6 +74,7 @@ class Editor:
         edit_buttons.append(Button(67, 0, 33, 5, 'New', new))
 
         while self.editing[0]:
+            fl.efface_tout()
             if self.menu(edit_buttons):
                 return None
             if self.events.type == "Touche":
@@ -86,6 +89,7 @@ class Editor:
 
         Return None
         """
+        fl.efface_tout()
         editing_buttons = []
 
         def items(item):
@@ -99,6 +103,7 @@ class Editor:
         editing_buttons.append(Button(40, 0, 20, 5, 'Sheep', items, 'S'))
         editing_buttons.append(Button(60, 0, 20, 5, 'Grass', items, 'G'))
         editing_buttons.append(Button(80, 0, 20, 5, 'Bush', items, 'B'))
+        self.render()
         while self.editing[1]:
             if self.menu(editing_buttons):
                 self.editing[0] = False
@@ -111,11 +116,14 @@ class Editor:
                     x, y = self.clicked_box((fl.abscisse_souris(),
                                              fl.ordonnee_souris()))
                     self.plateau[y][x] = self.selected
+                    self.render()
                 if self.events.type == "ClicDroit":
                     x, y = self.clicked_box((fl.abscisse_souris(),
                                              fl.ordonnee_souris()))
                     self.plateau[y][x] = None
-            self.render()
+                    self.render()
+            if self.is_screensize_changed():
+                self.render()
             fl.mise_a_jour()
 
     def render(self):
@@ -124,13 +132,14 @@ class Editor:
 
         Return None
         """
+        fl.efface_tout()
         x, y = len(self.plateau), len(self.plateau[0])
         window_h = fl.get_height()
         w, h = fl.get_width(), window_h*0.95
         fl.rectangle(0, h*0.05, fl.get_width(),
                      fl.get_height(), remplissage='#e0e0e0')
-        # fl.image(0, h*0.05, fl.get_width(), fl.get_height(),
-        #          './media/background.png', ancrage='sw')
+        fl.image(0, h*0.05, fl.get_width(), fl.get_height(),
+                 './media/background.png', ancrage='sw')
 
         for i in range(x):
             fl.ligne(0, h/x*i + h*0.05, w, h/x*i + h*0.05)
