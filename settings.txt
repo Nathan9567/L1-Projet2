@@ -1,7 +1,7 @@
-Up:Up
-Down:Down
-Left:Left
-Right:Right
+Up:z
+Down:s
+Left:q
+Right:d
 Save:F12
 Fullscreen:F11
 Back:Escape

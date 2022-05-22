@@ -251,7 +251,7 @@ class Game:
         fl.efface_tout()
         fl.rectangle(0, 0, fl.get_width(),
                      fl.get_height(), remplissage='#e0e0e0')
-        fl.image(0, 0, fl.get_width(), fl.get_height(), 'media/background.png',
+        fl.image(0, 0, fl.get_width(), fl.get_height(), 'media/background/gazon.png',
                  ancrage='sw')
         x, y = len(plateau), len(plateau[0])
         w, h = fl.get_width(), fl.get_height()
@@ -292,7 +292,8 @@ class Game:
         def random_map():
             sol = None
             while sol is None:
-                x, y = random.randint(3, 10), random.randint(3, 10)
+                # x, y = random.randint(3, 10), random.randint(3, 10)
+                x, y = 10, 10
                 sheep = random.randint(1, max(x//2, y//2))
                 grass = random.randint(1, sheep)
                 temp_grass = grass
@@ -327,12 +328,52 @@ class Game:
             self.play()
         
         def generate_map():
-            return
-            # TODO
+            sol = None
+            i = 0
             dim = fl.get_user_input("Dimension de la grille", "longeur:largeur")
-            sheep = fl.get_user_input("Nombre de moutons", "int")
-            grass = fl.get_user_input("Nombre de touffes d'herbe", "int")
-            sol_min = fl.get_user_input("Longueur de la solution minimal", "int")
+            try:
+                dimensions = [int(dim.split(':')[0]), int(dim.split(':')[1])]
+            except:
+                return None
+            sheep = int(fl.get_user_input("Nombre de moutons", "int"))
+            grass = int(fl.get_user_input("Nombre de touffes d'herbe", "int"))
+            sol_min = int(fl.get_user_input("Longueur de la solution minimal", "int"))
+            x, y = dimensions
+            max_search = 10
+            while (sol is None or sol < sol_min):
+                temp_grass = grass
+                bush = random.randint(4, int(x*y/2))
+                temp_plateau = [None for _ in range(y*x)]
+                for i in range(len(temp_plateau)):
+                    if sheep > 0:
+                        temp_plateau[i] = 'S'
+                        sheep -= 1
+                    elif temp_grass > 0:
+                        temp_plateau[i] = 'G'
+                        temp_grass -= 1
+                    elif bush > 0:
+                        temp_plateau[i] = 'B'
+                        bush -= 1
+                    else:
+                        break
+                random.shuffle(temp_plateau)
+                self.plateau = []
+                self.entities = []
+                for i in range(y):
+                    temp = []
+                    for j in range(x):
+                        if temp_plateau[i*x + j] == "S":
+                            temp.append(None)
+                            self.entities.append(Sheep(i, j, self.settings))
+                        else:
+                            temp.append(temp_plateau[i*x+j])
+                    self.plateau.append(temp)
+                res = self.solve_min(self.plateau, grass)
+                if res is not None:
+                    sol = len(res)
+                self.nb_of_grass = grass
+                i += 1
+            self.play()
 
 
 

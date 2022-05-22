@@ -82,10 +82,10 @@ class Application:
                 return None
             return setting
 
+        buttons.append(Button(2, 2, 10, 12, "", settings, True))
         buttons.append(Button(30, 15, 40, 20, "Play", play))
         buttons.append(Button(30, 40, 40, 20, "Editor", editor))
         buttons.append(Button(30, 65, 40, 20, "Rules", how_to_play))
-        buttons.append(Button(2, 2, 10, 12, "", settings, True))
         # buttons.append(Button(200, 250, 600, 350, "Random Map", play))
 
         settings(False).import_settings()
@@ -143,7 +143,7 @@ class Application:
         au bon fonctionnement du programme.
 
         Returns:
-            bool: True si l'utilisateur veut quitter le programme, None sinon.
+            bool: True si l'utilisateur veut quitter le programme, False sinon.
         """
         if self.events.type == "Quitte":
             self.running = False

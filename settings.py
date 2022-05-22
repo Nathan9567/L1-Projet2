@@ -37,8 +37,8 @@ class Settings:
                                                set_settings, item[0]))
                 i += 1
 
-        create_buttons(self.settings_dict)
         self.render()
+        create_buttons(self.settings_dict)
         while self.in_settings:
             if self.menu(settings_buttons):
                 return None
@@ -80,6 +80,8 @@ class Settings:
                      couleur=couleur, epaisseur=epaisseur)
 
     def render(self):
+        fl.image(0, 0, fl.get_width(), fl.get_height(),
+        "media/background/settings.png", ancrage='sw')
         j = 0
         for key in self.settings_dict:
             self.percent_text(5, 17+(j*8), key, couleur='black',

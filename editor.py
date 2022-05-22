@@ -58,8 +58,6 @@ class Editor:
             dimensions_str = fl.get_user_input(
                 "Taille", "Entrez les dimensions du plateau "
                 "(en nombre de cases): largeur:hauteur")
-            if dimensions_str is None:
-                return None
             dimensions = [0, 0]
             try:
                 dimensions[0] = int(dimensions_str.split(':')[0])
@@ -108,6 +106,7 @@ class Editor:
         editing_buttons.append(Button(80, 0, 20, 5, 'Bush', items, 'B'))
         self.render()
         while self.editing[1]:
+            print(self.events.type)
             if self.menu(editing_buttons):
                 self.editing[0] = False
                 return None
@@ -142,7 +141,7 @@ class Editor:
         fl.rectangle(0, h*0.05, fl.get_width(),
                      fl.get_height(), remplissage='#e0e0e0')
         fl.image(0, h*0.05, fl.get_width(), fl.get_height(),
-                 './media/background.png', ancrage='sw')
+                 './media/background/gazon.png', ancrage='sw')
 
         for i in range(x):
             fl.ligne(0, h/x*i + h*0.05, w, h/x*i + h*0.05)
