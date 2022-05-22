@@ -61,11 +61,14 @@ class Application:
             return self.is_screensize_change()
 
         def play():
+            print(self.dict_settings)
+            self.events = Event("", None)
             Game(load_map, main_events, save, self.events,
                  self.dict_settings, menu, screen_size)
-            self.events.get_ev()
+            #self.events.get_ev()
 
         def editor():
+            self.events = Event("", None)
             Editor(menu, load_map, savetxt, self.events, self.dict_settings, screen_size)
 
         def how_to_play():

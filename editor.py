@@ -61,13 +61,16 @@ class Editor:
             if dimensions_str is None:
                 return None
             dimensions = [0, 0]
-            dimensions[0] = int(dimensions_str.split(':')[0])
-            dimensions[1] = int(dimensions_str.split(':')[1])
+            try:
+                dimensions[0] = int(dimensions_str.split(':')[0])
+                dimensions[1] = int(dimensions_str.split(':')[1])
+            except:
+                return None
             self.plateau = [[None for _ in range(dimensions[0])]
                             for _ in range(dimensions[1])]
             self.editing[1] = True
             self.edit()
-            pass
+            
 
         edit_buttons.append(Button(0, 0, 33, 5, 'Back', back))
         edit_buttons.append(Button(33, 0, 34, 5, 'Load', load))

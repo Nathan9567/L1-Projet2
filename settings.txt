@@ -1,0 +1,10 @@
+Up:Up
+Down:Down
+Left:Left
+Right:Right
+Save:F12
+Fullscreen:F11
+Back:Escape
+Previous move:F3
+Solver:F4
+Clue:F1
