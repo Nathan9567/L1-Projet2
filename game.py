@@ -294,8 +294,8 @@ class Game:
         def random_map():
             sol = None
             while sol is None:
-                # x, y = random.randint(3, 10), random.randint(3, 10)
-                x, y = 10, 10
+                x, y = random.randint(3, 10), random.randint(3, 10)
+                # x, y = 10, 10
                 sheep = random.randint(1, max(x//2, y//2))
                 grass = random.randint(1, sheep)
                 temp_grass = grass
@@ -387,10 +387,10 @@ class Game:
             self.play()
             self.background = False
 
+        player_buttons.append(Button(30, 65, 40, 15, "Just random", random_map))
         player_buttons.append(Button(2, 2, 15, 10, "Back", back))
         player_buttons.append(Button(30, 10, 40, 15, "Load map", load))
         player_buttons.append(Button(30, 45, 40, 15, "Set value", generate_map))
-        player_buttons.append(Button(30, 65, 40, 15, "Just random", random_map))
 
         fl.image(0, 0, fl.get_width(), fl.get_height(),
                  './media/background/gazon.png', ancrage='sw')
@@ -400,6 +400,11 @@ class Game:
         while self.playing:
             fl.efface('b')
             if self.is_screensize_changed() or not self.background:
+                fl.image(0, 0, fl.get_width(), fl.get_height(),
+                         './media/background/gazon.png', ancrage='sw')
+                fl.texte(35/100*fl.get_width(), 35/100*fl.get_height(), 'Random map :',
+                         taille=int(10/100 * fl.get_height() * 0.5),
+                         police='Helvetica', couleur='black', ancrage='nw')
                 self.background = True
             if self.menu(player_buttons):
                 return None
